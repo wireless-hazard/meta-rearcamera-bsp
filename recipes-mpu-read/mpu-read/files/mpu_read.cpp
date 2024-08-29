@@ -3,8 +3,12 @@
 #include <stdio.h>
 #include <cstdlib>
 
+namespace mpu
+{
 struct mpu_t {
     public:
+    enum axis_t
+    {x, y, z};
 
     mpu_t(void)
     {
@@ -16,34 +20,51 @@ struct mpu_t {
         delete[] line;
     }
 
-    int get_accel_x_raw(void)
+    template<axis_t axis>
+    int get_accel_raw(void)
     {
-        int accel_x_raw = 0;
+        int accel_raw = 0;
 
-        file_descriptor = fopen("/sys/bus/i2c/devices/1-0068/iio:device0/in_accel_x_raw", "r");
+        if constexpr (axis == x)
+        {
+            file_descriptor = fopen("/sys/bus/i2c/devices/1-0068/iio:device0/in_accel_x_raw", "r");
+        }
+        else if constexpr (axis == y)
+        {
+            file_descriptor = fopen("/sys/bus/i2c/devices/1-0068/iio:device0/in_accel_y_raw", "r");
+        }
+        else
+        {
+            file_descriptor = fopen("/sys/bus/i2c/devices/1-0068/iio:device0/in_accel_z_raw", "r");
+        }
+
+
         if (file_descriptor != NULL)
         {
             (void)fgets(line, 10, file_descriptor);
-            accel_x_raw = std::atoi(line);
+            accel_raw = std::atoi(line);
         }
 
         fclose(file_descriptor);
 
-        return accel_x_raw;
+        return accel_raw;
     }
 
     private:
     FILE *file_descriptor = NULL;
     char *line = NULL;
 };
+}
 
 int main(void)
 {
-    struct mpu_t mpu;
+    struct mpu::mpu_t mpu;
 
     for (uint8_t iterations = 0U; iterations < 10U; iterations++)
     {
-        printf("%d\n", mpu.get_accel_x_raw());
+        printf("Raw Accel x: %d\n", mpu.get_accel_raw<mpu::mpu_t::x>());
+        printf("Raw Accel y: %d\n", mpu.get_accel_raw<mpu::mpu_t::y>());
+        printf("Raw Accel z: %d\n", mpu.get_accel_raw<mpu::mpu_t::z>());
         sleep(1);
     }
 
