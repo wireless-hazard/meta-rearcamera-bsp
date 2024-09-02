@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <cstdlib>
+#include "framebuffer_ssd1306.h"
 
 namespace mpu
 {
@@ -56,17 +57,22 @@ struct mpu_t {
 };
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
     struct mpu::mpu_t mpu;
+    struct fb_ssd::fb_ssd_t framebuffer;
 
-    for (uint8_t iterations = 0U; iterations < 10U; iterations++)
+    framebuffer.init();
+    if (framebuffer.in_state_of_error)
     {
-        printf("Raw Accel x: %d\n", mpu.get_accel_raw<mpu::mpu_t::x>());
-        printf("Raw Accel y: %d\n", mpu.get_accel_raw<mpu::mpu_t::y>());
-        printf("Raw Accel z: %d\n", mpu.get_accel_raw<mpu::mpu_t::z>());
-        sleep(1);
+        printf("the framebuffer has NOT started!\nAn error occurred!");
     }
+    printf("The screensize is: %ld\n", framebuffer.get_screensize());
 
+    printf("Raw Accel x: %d\n", mpu.get_accel_raw<mpu::mpu_t::x>());
+    printf("Raw Accel y: %d\n", mpu.get_accel_raw<mpu::mpu_t::y>());
+    printf("Raw Accel z: %d\n", mpu.get_accel_raw<mpu::mpu_t::z>());
+    *(framebuffer.fbp + std::atol(argv[2])) = std::atod(argv[1]);
+    
     return 0;
 }
