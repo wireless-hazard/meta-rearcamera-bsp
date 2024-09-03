@@ -13,6 +13,7 @@ struct fb_ssd_t
     fb_ssd_t(void);
     ~fb_ssd_t(void);
     fb_error_t init(void);
+    void write_to_screen(size_t off_set, const void* src, size_t src_length);
     inline long int get_screensize(void) const {return screensize;}
 
     private:

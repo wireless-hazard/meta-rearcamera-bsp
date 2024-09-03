@@ -57,6 +57,17 @@ struct mpu_t {
 };
 }
 
+static constexpr uint8_t screen_values[64][16] = {
+    {0b10111101},
+    {0b10011001},
+    {0b11011011},
+    {0b11100111},
+    {0b11000011},
+    {0b10100101},
+    {0b00000000},
+    {0b10011001},
+    };
+
 int main(int argc, char *argv[])
 {
     struct mpu::mpu_t mpu;
@@ -72,7 +83,8 @@ int main(int argc, char *argv[])
     printf("Raw Accel x: %d\n", mpu.get_accel_raw<mpu::mpu_t::x>());
     printf("Raw Accel y: %d\n", mpu.get_accel_raw<mpu::mpu_t::y>());
     printf("Raw Accel z: %d\n", mpu.get_accel_raw<mpu::mpu_t::z>());
-    *(framebuffer.fbp + std::atol(argv[2])) = std::atod(argv[1]);
+    //*(framebuffer.fbp + std::atol(argv[2])) = std::atoi(argv[1]);
+    framebuffer.write_to_screen(0, (void*)(&(screen_values[0U][0U])),sizeof(screen_values)/sizeof(uint8_t));
     
     return 0;
 }
