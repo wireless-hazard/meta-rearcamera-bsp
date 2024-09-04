@@ -1,5 +1,4 @@
 #include <unistd.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <cstdlib>
 #include "framebuffer_ssd1306.h"
@@ -57,16 +56,7 @@ struct mpu_t {
 };
 }
 
-static constexpr uint8_t screen_values[64][16] = {
-    {0b10111101},
-    {0b10011001},
-    {0b11011011},
-    {0b11100111},
-    {0b11000011},
-    {0b10100101},
-    {0b00000000},
-    {0b10011001},
-    };
+static std::array<uint8_t, 8> oled_layer{0b10111101,0b10011001,0b11011011,0b11100111,0b11000011,0b10100101,0b00000000,0b10011001,};
 
 int main(int argc, char *argv[])
 {
@@ -83,8 +73,11 @@ int main(int argc, char *argv[])
     printf("Raw Accel x: %d\n", mpu.get_accel_raw<mpu::mpu_t::x>());
     printf("Raw Accel y: %d\n", mpu.get_accel_raw<mpu::mpu_t::y>());
     printf("Raw Accel z: %d\n", mpu.get_accel_raw<mpu::mpu_t::z>());
-    //*(framebuffer.fbp + std::atol(argv[2])) = std::atoi(argv[1]);
-    framebuffer.write_to_screen(0, (void*)(&(screen_values[0U][0U])),sizeof(screen_values)/sizeof(uint8_t));
+
+    const uint8_t current_column = std::atoi(argv[2]);
+    const uint8_t current_line   = std::atoi(argv[1]);
     
+    framebuffer.write_char_to_screen(oled_layer,current_line,current_column);
+
     return 0;
 }

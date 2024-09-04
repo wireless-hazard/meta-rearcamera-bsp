@@ -24,7 +24,6 @@ fb_ssd_t::fb_ssd_t(void)
         // Sets the error flag
         this->in_state_of_error = true;
     }
-    
 }
 
 fb_ssd_t::~fb_ssd_t(void)
@@ -55,4 +54,19 @@ fb_ssd_t::fb_error_t fb_ssd_t::init(void)
 void fb_ssd_t::write_to_screen(size_t off_set, const void* src, size_t src_length)
 {
     (void)std::memcpy((void *)(this->fbp + off_set), src, src_length);
+}
+
+fb_ssd_t::fb_error_t fb_ssd_t::write_char_to_screen(std::array<uint8_t, 8> &char_to_write, uint8_t line, uint8_t column)
+{
+    if ((column > 15) || (line > 7))
+    {
+        return FB_SSD_OUT_OF_RANGE;
+    }
+
+    for (size_t index = 0U; index < char_to_write.size(); index++)
+    {
+        *(this->fbp + (16*index) + (128*line) + column) = ~char_to_write[index];
+    }
+
+    return FB_SSD_OK;
 }
