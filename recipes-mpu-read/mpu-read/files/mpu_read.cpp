@@ -1,6 +1,9 @@
 #include <unistd.h>
 #include <stdio.h>
+#include <string>
 #include <cstdlib>
+#include <chrono>
+#include <thread>
 #include "framebuffer_ssd1306.h"
 
 namespace mpu
@@ -56,8 +59,6 @@ struct mpu_t {
 };
 }
 
-static std::array<uint8_t, 8> oled_layer{0b10111101,0b10011001,0b11011011,0b11100111,0b11000011,0b10100101,0b00000000,0b10011001,};
-
 int main(int argc, char *argv[])
 {
     struct mpu::mpu_t mpu;
@@ -70,14 +71,22 @@ int main(int argc, char *argv[])
     }
     printf("The screensize is: %ld\n", framebuffer.get_screensize());
 
-    printf("Raw Accel x: %d\n", mpu.get_accel_raw<mpu::mpu_t::x>());
-    printf("Raw Accel y: %d\n", mpu.get_accel_raw<mpu::mpu_t::y>());
-    printf("Raw Accel z: %d\n", mpu.get_accel_raw<mpu::mpu_t::z>());
+    std::string mpu_x;
+    std::string mpu_y;
+    std::string mpu_z;
 
-    const uint8_t current_column = std::atoi(argv[2]);
-    const uint8_t current_line   = std::atoi(argv[1]);
-    
-    framebuffer.write_char_to_screen(oled_layer,current_line,current_column);
+    for (uint8_t count = 0; count < 40; count ++)
+    {
+        mpu_x = std::to_string(mpu.get_accel_raw<mpu::mpu_t::x>());
+        mpu_y = std::to_string(mpu.get_accel_raw<mpu::mpu_t::y>());
+        mpu_z = std::to_string(mpu.get_accel_raw<mpu::mpu_t::z>());
+
+        framebuffer.write_string_to_screen(mpu_x.c_str(),{.line=0,.column=0});
+        framebuffer.write_string_to_screen(mpu_y.c_str(),{.line=1,.column=0});
+        framebuffer.write_string_to_screen(mpu_z.c_str(),{.line=2,.column=0});
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    }
 
     return 0;
 }
