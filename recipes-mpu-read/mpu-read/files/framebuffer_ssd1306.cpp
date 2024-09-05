@@ -7,48 +7,41 @@
 #include <sys/mman.h>
 #include "framebuffer_ssd1306.h"
 
-static std::array<uint8_t, 8> oled_number0{0b11111111,0b11100111,0b11011011,0b11011011,0b11011011,0b11011011,0b11100111,0b11111111,};
-static std::array<uint8_t, 8> oled_number1{0b11111111,0b11111111,0b11110111,0b11100111,0b11110111,0b11110111,0b11110111,0b11111111,};
-static std::array<uint8_t, 8> oled_number2{0b11111111,0b11000011,0b10010011,0b10110011,0b11100111,0b11001111,0b11000011,0b11111111,};
-static std::array<uint8_t, 8> oled_number3{0b11111111,0b11111111,0b11100011,0b11111011,0b11110111,0b11111011,0b11100011,0b11111111,};
-static std::array<uint8_t, 8> oled_number4{0b11111111,0b11111111,0b11101011,0b11101011,0b11100011,0b11111011,0b11111011,0b11111111,};
-static std::array<uint8_t, 8> oled_number5{0b11111111,0b11111111,0b11100011,0b11101111,0b11100111,0b11111011,0b11100111,0b11111111,};
-static std::array<uint8_t, 8> oled_number6{0b11111111,0b11111111,0b11110011,0b11101111,0b11100111,0b11101011,0b11110111,0b11111111,};
-static std::array<uint8_t, 8> oled_number7{0b11111111,0b11111111,0b11100011,0b11111011,0b11110111,0b11101111,0b11101111,0b11111111,};
-static std::array<uint8_t, 8> oled_number8{0b11111111,0b11100111,0b11011011,0b11011011,0b11100111,0b11011011,0b11011011,0b11100111,};
-static std::array<uint8_t, 8> oled_number9{0b11111111,0b11111111,0b11110111,0b11101011,0b11110011,0b11111011,0b11100111,0b11111111,};
-static std::array<uint8_t, 8> oled_numberN{0b11111111,0b11111111,0b11011011,0b10000001,0b10000001,0b11011111,0b11111111,0b11111111,};
+static uint8_t oled_number0[8] = {0b11111111,0b11000011,0b11011011,0b11011011,0b11011011,0b11011011,0b11011011,0b11000011,}; // 0
+static uint8_t oled_number1[8] = {0b11111111,0b11101111,0b11101111,0b11101111,0b11101111,0b11101111,0b11101111,0b11101111,}; // 1
+static uint8_t oled_number2[8] = {0b11111111,0b11000011,0b11011111,0b11011111,0b11000011,0b11111011,0b11111011,0b11000011,}; // 2
+static uint8_t oled_number3[8] = {0b11111111,0b11000011,0b11011111,0b11011111,0b11000011,0b11011111,0b11011111,0b11000011,}; // 3
+static uint8_t oled_number4[8] = {0b11111111,0b11011011,0b11011011,0b11011011,0b11000011,0b11011111,0b11011111,0b11011111,}; // 4
+static uint8_t oled_number5[8] = {0b11111111,0b11000011,0b11111011,0b11111011,0b11000011,0b11011111,0b11011111,0b11000011,}; // 5
+static uint8_t oled_number6[8] = {0b11111111,0b11000011,0b11111011,0b11111011,0b11000011,0b11011011,0b11011011,0b11000011,}; // 6
+static uint8_t oled_number7[8] = {0b11111111,0b11000011,0b11011111,0b11011111,0b11011111,0b11011111,0b11011111,0b11011111,}; // 7
+static uint8_t oled_number8[8] = {0b11111111,0b11000011,0b11011011,0b11011011,0b11100111,0b11011011,0b11011011,0b11000011,}; // 8
+static uint8_t oled_number9[8] = {0b11111111,0b11000011,0b11011011,0b11011011,0b11000011,0b11011111,0b11011111,0b11000011,}; // 9
+static uint8_t oled_numberN[8] = {0b11111111,0b11111111,0b11111111,0b11111111,0b11000011,0b11111111,0b11111111,0b11111111,}; // -
+static uint8_t oled_numberERR[8] = {0b11111111,0b11111111,0b11111111,0b11111111,0b11111111,0b11111111,0b11111111,0b11111111,}; // -
+
+static uint8_t *lookup_table_chars_to_oled[] = {
+    &oled_numberN[0], /*[45] = */
+    &oled_numberERR[0],
+    &oled_numberERR[0],
+    &oled_number0[0],
+    &oled_number1[0],
+    &oled_number2[0],
+    &oled_number3[0],
+    &oled_number4[0],
+    &oled_number5[0],
+    &oled_number6[0],
+    &oled_number7[0],
+    &oled_number8[0],
+    &oled_number9[0]    
+    };
 
 namespace fb_ssd 
 {
 
-static std::array<uint8_t, 8> &get_oled_char(const char *value)
+static inline uint8_t *get_oled_char(const char *value)
 {
-    switch (*value)
-    {
-        case '0':
-            return oled_number0;
-        case '1':
-            return oled_number1;
-        case '2':
-            return oled_number2;
-        case '3':
-            return oled_number3;
-        case '4':
-            return oled_number4;
-        case '5':
-            return oled_number5;
-        case '6':
-            return oled_number6;
-        case '7':
-            return oled_number7;
-        case '8':
-            return oled_number8;
-        case '9':
-            return oled_number9;
-        case '-':
-            return oled_numberN;
-    }
+    return lookup_table_chars_to_oled[(*value)-45];
 }
 
 fb_ssd_t::fb_ssd_t(void)
@@ -105,9 +98,9 @@ fb_ssd_t::fb_error_t fb_ssd_t::write_char_to_screen(const char *single_char, ole
         return FB_SSD_OUT_OF_RANGE;
     }
 
-    std::array<uint8_t, 8> &char_to_write = get_oled_char(single_char);
+    uint8_t *char_to_write = get_oled_char(single_char);
 
-    for (size_t index = 0U; index < char_to_write.size(); index++)
+    for (size_t index = 0U; index < 8; index++)
     {
         *(this->fbp + (16*index) + (128*position.line) + position.column) = ~char_to_write[index];
     }

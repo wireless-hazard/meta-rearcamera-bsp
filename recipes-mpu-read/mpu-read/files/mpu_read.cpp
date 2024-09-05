@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <string>
 #include <cstdlib>
-#include <chrono>
-#include <thread>
 #include "framebuffer_ssd1306.h"
 
 namespace mpu
@@ -75,7 +73,7 @@ int main(int argc, char *argv[])
     std::string mpu_y;
     std::string mpu_z;
 
-    for (uint8_t count = 0; count < 40; count ++)
+    while (true)
     {
         mpu_x = std::to_string(mpu.get_accel_raw<mpu::mpu_t::x>());
         mpu_y = std::to_string(mpu.get_accel_raw<mpu::mpu_t::y>());
@@ -84,8 +82,6 @@ int main(int argc, char *argv[])
         framebuffer.write_string_to_screen(mpu_x.c_str(),{.line=0,.column=0});
         framebuffer.write_string_to_screen(mpu_y.c_str(),{.line=1,.column=0});
         framebuffer.write_string_to_screen(mpu_z.c_str(),{.line=2,.column=0});
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(250));
     }
 
     return 0;
