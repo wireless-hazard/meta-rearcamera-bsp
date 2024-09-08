@@ -20,10 +20,8 @@ struct mpu_t {
     }
 
     template<axis_t axis>
-    int get_accel_raw(void)
+    const char *get_accel_raw(void)
     {
-        int accel_raw = 0;
-
         if constexpr (axis == x)
         {
             file_descriptor = fopen("/sys/bus/i2c/devices/1-0068/iio:device0/in_accel_x_raw", "r");
@@ -41,12 +39,11 @@ struct mpu_t {
         if (file_descriptor != NULL)
         {
             (void)fgets(line, 10, file_descriptor);
-            accel_raw = std::atoi(line);
         }
 
         fclose(file_descriptor);
 
-        return accel_raw;
+        return line;
     }
 
     private:
