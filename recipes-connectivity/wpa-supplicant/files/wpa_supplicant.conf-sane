@@ -1,0 +1,9 @@
+ctrl_interface=/var/run/wpa_supplicant
+ctrl_interface_group=0
+update_config=1
+
+network={
+    ssid="apteste"
+    psk=efbbacaba67d85a9716ac0c0a927308500381aecd6f7265c500f43b845d6ed30
+}
+
