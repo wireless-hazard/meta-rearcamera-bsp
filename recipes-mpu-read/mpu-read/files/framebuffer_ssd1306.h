@@ -1,4 +1,5 @@
 #include <linux/fb.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <array>
 
