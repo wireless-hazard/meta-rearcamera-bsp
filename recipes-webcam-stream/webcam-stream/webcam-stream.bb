@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = ""
 DEPENDS = "gstreamer1.0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good pkgconfig-native"
 
 SRC_URI = "git://github.com/wireless-hazard/WebcamOverLAN.git;branch=main;protocol=https"
-SRCREV = "da3c66bbbf4aa616b15b18a378bdf2fd621b82c4"
+SRCREV = "${AUTOREV}"
 
 S = "${WORKDIR}/git"
 
