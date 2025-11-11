@@ -1,4 +1,4 @@
-obj-m := ov5647-gpio.o
+obj-m := ov5647-regulator.o
 SRC := $(shell pwd)
 
 all:
